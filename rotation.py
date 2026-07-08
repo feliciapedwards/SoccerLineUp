@@ -77,13 +77,20 @@ def player_cost(player, pos, play_minutes, position_counts, last_sat):
     )
 
 
+def get_cell_value(player_data, player, column):
+    value = player_data.loc[player, column]
+    if isinstance(value, pd.Series):
+        value = value.iloc[0]
+    return value
+
+
 def choose_lineup(player_data, players, positions, play_minutes, position_counts, last_sat):
-    female_players = [p for p in players if player_data.at[p, FEMALE_COLUMN]]
+    female_players = [p for p in players if get_cell_value(player_data, p, FEMALE_COLUMN)]
     if len(female_players) < MIN_FEMALES_ON_FIELD:
         return None, f"Roster must contain at least {MIN_FEMALES_ON_FIELD} female players."
 
     eligible_by_position = {
-        pos: [p for p in players if player_data.at[p, pos]]
+        pos: [p for p in players if get_cell_value(player_data, p, pos)]
         for pos in positions
     }
     for pos, eligible in eligible_by_position.items():
@@ -175,6 +182,7 @@ def generate_lineups(players_df):
             position_counts[player][pos] += 1
 
         playing = set(lineup.values())
+        bench_players = [p for p in players if p not in playing]
         for p in players:
             if p in playing:
                 play_minutes[p] += block["Duration"]
@@ -185,6 +193,7 @@ def generate_lineups(players_df):
             "Half": block["Half"],
             "Time": f"{block['Start']}-{block['End']} min",
             **lineup,
+            "Bench": ", ".join(bench_players),
         }
         schedule.append(row)
 
