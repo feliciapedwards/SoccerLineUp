@@ -1,0 +1,8 @@
+pandas==3.0.3
+streamlit==1.59.1
+numpy==2.5.1
+python-dateutil==2.9.0.post0
+toml==0.10.2
+altair==6.2.2
+click==8.4.2
+pydeck==0.9.3
